@@ -1,0 +1,101 @@
+/// app/chat/page.tsx
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Clipboard, Volume2, VolumeX } from 'lucide-react';
+import { MarkdownMessage } from "@/components/markdown-message";
+import { useEffect, useState } from "react";
+
+const ChatPage = ({ messages, setMessages, copyMessage, toggleSpeak, speak, lang }) => {
+  return (
+    <div className="h-[56vh] overflow-y-auto bg-muted/30">
+      {messages.map(m => {
+        const isUser = m.role === 'user';
+        return (
+          <div key={m.id} className={cn('flex', isUser ? 'justify-end' : 'justify-start')}>
+            <div
+              className={cn(
+                'max-w-[85%] rounded-lg p-3 space-y-2 ring-1 ring-border',
+                isUser
+                  ? 'bg-white text-foreground dark:bg-white' // user bubble always white
+                  : 'bg-white dark:bg-zinc-900 text-foreground' // assistant bubble
+              )}
+            >
+              {m.role === 'assistant' ? (
+                <MarkdownMessage content={m.text || ''} />
+              ) : (
+                <div className="whitespace-pre-wrap text-sm">{m.text}</div>
+              )}
+
+              {/* Icon-only controls under each message */}
+              <div className="flex items-center gap-2 pt-1">
+                {/* Copy icon for both user and assistant */}
+                <Button size="icon" variant="ghost" className="h-8 w-8"
+                  onClick={() => copyMessage(m)} aria-label="Copy message">
+                  <Clipboard className="h-4 w-4" />
+                </Button>
+
+                {/* Speaker icon only for assistant and only after streaming ends */}
+                {m.role === 'assistant' && !m.streaming && (
+                  <Button size="icon" variant="ghost" className="h-8 w-8"
+                    onClick={() => toggleSpeak(m)} aria-label={m.tts ? 'Speaker off' : 'Speaker on'}>
+                    {m.tts ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  </Button>
+                )}
+              </div>
+
+              {/* existing attachments block stays below controls */}
+              {m.attachments && m.attachments.length > 0 && (
+                /* keep the same attachments JSX as before */
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default ChatPage;
+
+// app/page.tsx (Welcome page)
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Clipboard, Volume2, VolumeX, Video, Scissors } from 'lucide-react';
+
+const WelcomePage = () => {
+  return (
+    <div className="grid gap-4">
+      {/* Animated gradient blob */}
+      <div className="relative overflow-hidden rounded-xl h-48 ring-1 ring-white/20">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.35),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(255,255,255,0.2),transparent_60%)]" />
+        <div className="absolute -top-10 -left-10 h-40 w-40 rounded-full bg-white/30 blur-2xl animate-pulse" />
+        <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-white/20 blur-3xl animate-[pulse_3s_ease-in-out_infinite]" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-lg font-semibold">Fast • Colorful • Creative</span>
+        </div>
+      </div>
+
+      {/* Feature cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-lg p-4 bg-white/15 backdrop-blur ring-1 ring-white/20">
+          <div className="text-2xl">🎙️</div>
+          <div className="mt-2 text-sm opacity-90">Voice in/out with per‑message control</div>
+        </div>
+        <div className="rounded-lg p-4 bg-white/15 backdrop-blur ring-1 ring-white/20">
+          <div className="text-2xl">🖼️</div>
+          <div className="mt-2 text-sm opacity-90">Image analyze and quick edits</div>
+        </div>
+        <div className="rounded-lg p-4 bg-white/15 backdrop-blur ring-1 ring-white/20">
+          <div className="text-2xl">📹</div>
+          <div className="mt-2 text-sm opacity-90">Prompt to short video storyboard</div>
+        </div>
+        <div className="rounded-lg p-4 bg-white/15 backdrop-blur ring-1 ring-white/20">
+          <div className="text-2xl">💬</div>
+          <div className="mt-2 text-sm opacity-90">ChatGPT‑style code blocks & copy</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default WelcomePage;
