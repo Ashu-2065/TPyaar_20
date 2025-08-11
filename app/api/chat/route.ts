@@ -1,6 +1,7 @@
 import { google } from "@ai-sdk/google"
 import { streamText, generateText, type ModelMessage, InvalidPromptError, InvalidMessageRoleError } from "ai"
 
+export const runtime = 'edge';
 export const maxDuration = 60
 
 type Body = {
@@ -115,7 +116,7 @@ export async function POST(req: Request) {
   }
 
   const modelMessages = toModelMessages(history, sys)
-  const tryModels = strict ? [model] : [model, "gemini-2.5-flash", "gemini-1.5-pro", "gemini-1.5-flash"]
+  const tryModels = strict ? [model] : ["gemini-2.5-flash", model, "gemini-1.5-pro", "gemini-1.5-flash"]
 
   for (const name of tryModels) {
     try {
